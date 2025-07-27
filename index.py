@@ -3,6 +3,9 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
 import random
+import os
+import shutil
+import subprocess
 
 root = tk.Tk()
 root.title("Random_roll_call")
@@ -11,9 +14,9 @@ root.resizable(False, False)
 root.config(bg="#4CE012")
 top = Label(root, text="让我看看是谁被点到了", font=("Arial", 40),bg="#4CE012", fg="white")
 top.pack()
+os.mkdir("plugin") if not os.path.exists("plugin") else None
 
 fullscreen_var = tk.BooleanVar(value=True)
-
 
 rname = ""
 
@@ -65,6 +68,7 @@ def call():
         fullscreen.after(5000, fullscreen.destroy)
 
 def houtai():
+    global window1
     window1 = tk.Toplevel(root)
     window1.title("后台管理")
     window1.geometry("400x300")
@@ -74,12 +78,40 @@ def houtai():
     addNameList.pack()
     text1 = Label(window1, text="   ", font=("Arial", 40), bg="#12C1E0", fg="white")
     text1.pack()
-    writeNameList = Button(window1, text="编辑名单", font=("Arial", 20), bg="#4CE012", fg="white")
-    writeNameList.pack()
+    more = Button(window1, text="使用扩展", font=("Arial", 20), bg="#4CE012", fg="white", command = plugin)
+    more.pack()
     check = Checkbutton(window1, text="全屏通缉", variable=fullscreen_var, font=("Arial", 16), bg="#12C1E0", fg="white", selectcolor="#12C1E0", activebackground="#12C1E0")
     check.pack(pady=10)
     c = Label(window1,text='❗若选择全屏通缉，以全屏通缉上面的名字为准',bg="#12C1E0", fg="red", font=("Arial", 10))
     c.pack()
+
+def plugin():
+    global window2, entry
+    window2 = tk.Toplevel(window1)
+    window2.title("扩展功能")
+    window2.geometry("400x300")
+    window2.resizable(False, False)
+    window2.config(bg="#CCAF08")
+    t = Label(window2, text="输入你已经添加的扩展的文件名", font=("Arial", 20), bg="#CCAF08", fg="white")
+    t.pack()
+    entry = tk.Entry(window2, font=("Arial", 20), bg="#CCAF08", fg="black")
+    entry.pack()
+    ButtonAddPlugin = Button(window2, text="添加扩展", font=("Arial", 10), bg="#FFFFFF", fg="black", command=addPlugin)
+    ButtonAddPlugin.place(x=50, y=200)
+    ButtonUsePlugin = Button(window2, text="使用扩展", font=("Arial", 10), bg="#FFFFFF", fg="black", command=usePlugin)
+    ButtonUsePlugin.place(x=200, y=200)
+
+def usePlugin():
+    plname = entry.get()
+    subprocess.run(["python", f"plugin/{plname}.py"], check=True)
+
+def addPlugin():
+    plugin_path = filedialog.askopenfilename(title="选择扩展文件", filetypes=[("Python Files", "*.py")])
+    if not plugin_path:
+        return
+    shutil.copy(plugin_path, "plugin/")
+    messagebox.showinfo(":)", "已添加")
+
 
 houtai1 = Button(root, text="后台管理", font=("Arial", 10), bg="#A2E012", fg="white", command=houtai)
 houtai1.place(x=600, y=400)
